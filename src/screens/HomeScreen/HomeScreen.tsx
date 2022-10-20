@@ -2,6 +2,7 @@ import React from "react";
 import { Button, Col, Form, Input, InputNumber, Row } from "antd";
 import { POKEMON_ENDPOINT } from "../../config/config";
 import { useNavigate } from "react-router";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 const layout = {
   labelCol: { span: 8 },
@@ -21,24 +22,34 @@ const validateMessages = {
 
 export const HomeScreen = () => {
   const navigate = useNavigate();
-
-  const url = POKEMON_ENDPOINT;
-  const onFinish = (values: any) => {
+  const createPokemon = async (data: string) => {
     const requestData = {
       fields: {
         name: {
-          stringValue: values.name,
+          stringValue: data,
         },
       },
     };
-    fetch(url, {
+    const res = await fetch(url, {
       method: "POST",
       body: JSON.stringify(requestData),
-    })
-      .then((res) => res.json())
-      .then((response) => {
-        navigate("/list");
-      });
+    });
+    const json = await res.json();
+    return json;
+  };
+  const { mutate, isLoading, error } = useMutation(createPokemon, {
+    onSuccess: () => {
+      console.log("SUCCESSFULL");
+      navigate("/list");
+    },
+  });
+
+  const url = POKEMON_ENDPOINT;
+
+  if (isLoading) <h1>Loading</h1>;
+  if (error) <h1>error</h1>;
+  const onFinish = (values: any) => {
+    mutate(values.name);
   };
   return (
     <Row>
