@@ -8,8 +8,12 @@ import {
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import { Breadcrumb, Layout, Menu } from "antd";
-import HomeScreen from "../../screens/HomeScreen/HomeScreen";
 import { TokenContext } from "../../App";
+import LoginScreen from "../LoginScreen/LoginScreen";
+import { createBrowserRouter, RouterProvider, Route } from "react-router-dom";
+import { HomeScreen } from "../HomeScreen/HomeScreen";
+import router from "../../routes/Routes";
+
 const { Header, Content, Sider } = Layout;
 
 const items1: MenuProps["items"] = ["1", "2", "3"].map((key) => ({
@@ -74,7 +78,7 @@ const MainLayout: React.FC = () => (
             minHeight: 280,
           }}
         >
-          <HomeScreen />
+          <RouterProvider router={router} />
         </Content>
       </Layout>
     </Layout>

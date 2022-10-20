@@ -1,83 +1,61 @@
-import React, { useContext, useState } from "react";
-import { Button, Checkbox, Col, Form, Input, Row } from "antd";
-import { API_KEY, URL } from "../../config/config";
-import { SignupResponse } from "./types/SignUpResponse";
-import { TokenContext } from "../../App";
+import React from "react";
+import { Button, Col, Form, Input, InputNumber, Row } from "antd";
+import { POKEMON_ENDPOINT } from "../../config/config";
+import { useNavigate } from "react-router";
 
-type Submit = {
-  email: string;
-  password: string;
-  rememberMe: boolean;
+const layout = {
+  labelCol: { span: 8 },
+  wrapperCol: { span: 16 },
+};
+
+const validateMessages = {
+  required: "${label} is required!",
+  types: {
+    email: "${label} is not a valid email!",
+    number: "${label} is not a valid number!",
+  },
+  number: {
+    range: "${label} must be between ${min} and ${max}",
+  },
 };
 
 export const HomeScreen = () => {
-  const { token, setToken } = useContext(TokenContext);
+  const navigate = useNavigate();
 
-  const url = `${URL}/accounts:signUp?key=${API_KEY}`;
-
-  const onFinish = (values: Submit) => {
-    const postData = {
-      email: values.email,
-      password: values.password,
+  const url = POKEMON_ENDPOINT;
+  const onFinish = (values: any) => {
+    const requestData = {
+      fields: {
+        name: {
+          stringValue: values.name,
+        },
+      },
     };
     fetch(url, {
       method: "POST",
-      body: JSON.stringify(postData),
+      body: JSON.stringify(requestData),
     })
       .then((res) => res.json())
-      .then(async (response: SignupResponse) => {
-        await setToken(response.idToken);
-        console.log("TOKEN DEGERI", token);
+      .then((response) => {
+        navigate("/list");
       });
   };
-
-  const onFinishFailed = (errorInfo: any) => {
-    console.log("Failed:", errorInfo);
-  };
-
   return (
     <Row>
-      <Col span={12}>
+      <Col>
         <Form
-          name="basic"
-          labelCol={{ span: 8 }}
-          wrapperCol={{ span: 16 }}
-          initialValues={{ remember: true }}
+          name="nest-messages"
           onFinish={onFinish}
-          onFinishFailed={onFinishFailed}
-          autoComplete="off"
+          validateMessages={validateMessages}
         >
           <Form.Item
-            label="Email"
-            name="email"
-            rules={[
-              {
-                required: true,
-                pattern: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g,
-                message: "Please input valid email!",
-              },
-            ]}
+            name={["name"]}
+            label="Pokemon Name"
+            rules={[{ required: true }]}
           >
             <Input />
           </Form.Item>
-
-          <Form.Item
-            label="Parola"
-            name="password"
-            rules={[{ required: true, message: "Please input your password!" }]}
-          >
-            <Input.Password />
-          </Form.Item>
-
-          <Form.Item
-            name="remember"
-            valuePropName="checked"
-            wrapperCol={{ offset: 8, span: 16 }}
-          >
-            <Checkbox>Remember me</Checkbox>
-          </Form.Item>
-
-          <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+          <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
             <Button type="primary" htmlType="submit">
               Submit
             </Button>
@@ -87,5 +65,3 @@ export const HomeScreen = () => {
     </Row>
   );
 };
-
-export default HomeScreen;
